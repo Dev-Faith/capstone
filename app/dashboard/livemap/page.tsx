@@ -68,7 +68,7 @@ function RobotMarker() {
   );
 }
 
-export default function MapPage({ preview }: { preview?: boolean }) {
+export default function MapPage({ preview }: { preview: boolean }) {
   return (
     <div
       className={`${
