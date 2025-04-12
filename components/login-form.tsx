@@ -11,6 +11,7 @@ import { doSignInWithEmailAndPassword, doSignInWithGoogle } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { BiLogoGmail } from "react-icons/bi";
 import { toast } from "sonner";
+import { FaEyeSlash, FaRegEye } from "react-icons/fa";
 
 export function LoginForm({
   className,
@@ -23,6 +24,7 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (userLoggedIn) {
@@ -59,6 +61,8 @@ export function LoginForm({
     }
   };
 
+  const EyeIcon = !showPassword ? FaRegEye : FaEyeSlash;
+
   return (
     <form
       className={cn("flex flex-col gap-6", className)}
@@ -94,13 +98,19 @@ export function LoginForm({
               Forgot your password?
             </a>
           </div>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <EyeIcon
+              className="absolute right-2 top-2 text-muted-foreground"
+              onClick={() => setShowPassword(!showPassword)}
+            />
+          </div>
         </div>
 
         <Button type="submit" className="w-full" disabled={isSigningIn}>
@@ -127,7 +137,7 @@ export function LoginForm({
 
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
-        <a href="#" className="underline underline-offset-4">
+        <a href="/signup" className="underline underline-offset-4">
           Sign up
         </a>
       </div>

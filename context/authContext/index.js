@@ -32,6 +32,8 @@ export function AuthProvider({ children }) {
     userLoggedIn,
     loading,
   };
+
+  
   return (
     <Authcontext.Provider value={value}>
       {!loading && children}

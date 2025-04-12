@@ -7,10 +7,14 @@ import { Label } from "@/components/ui/label";
 
 import { useAuth } from "@/context/authContext";
 import { useState, useEffect } from "react";
-import { doCreateUserWithEmailAndPassword, doSignInWithGoogle } from "@/lib/auth";
+import {
+  doCreateUserWithEmailAndPassword,
+  doSignInWithGoogle,
+} from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { BiLogoGmail } from "react-icons/bi";
 import { toast } from "sonner";
+import { FaEyeSlash, FaRegEye } from "react-icons/fa";
 
 export function SignUpForm({
   className,
@@ -23,6 +27,7 @@ export function SignUpForm({
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (userLoggedIn) {
@@ -59,6 +64,8 @@ export function SignUpForm({
     }
   };
 
+  const EyeIcon = !showPassword ? FaRegEye : FaEyeSlash;
+
   return (
     <form
       className={cn("flex flex-col gap-6", className)}
@@ -86,13 +93,19 @@ export function SignUpForm({
         </div>
         <div className="grid gap-3">
           <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <EyeIcon
+              className="absolute right-2 top-2 text-muted-foreground"
+              onClick={() => setShowPassword(!showPassword)}
+            />
+          </div>
         </div>
 
         <Button type="submit" className="w-full" disabled={isSigningUp}>
@@ -119,7 +132,7 @@ export function SignUpForm({
 
       <div className="text-center text-sm">
         Already have an account?{" "}
-        <a href="#" className="underline underline-offset-4">
+        <a href="/login" className="underline underline-offset-4">
           Log in
         </a>
       </div>
