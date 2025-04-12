@@ -8,7 +8,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 
 import data from "./data.json";
-import MapPage from "./livemap/page";
+import MapPage from "@/components/ui/live-map";
 import { useEffect } from "react";
 
 export default function Page() {
