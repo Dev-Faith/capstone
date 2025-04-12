@@ -31,7 +31,7 @@ export function SignUpForm({
 
   useEffect(() => {
     if (userLoggedIn) {
-      router.push("/dashboard");
+      router.push("/");
     }
   }, [userLoggedIn, router]);
 

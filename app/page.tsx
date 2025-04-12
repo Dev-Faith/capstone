@@ -4,6 +4,7 @@ import LoginPage from "./login/page";
 import { useAuth } from "@/context/authContext";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import DashboardLayout from "./dashboard/layout";
 import Page from "./dashboard/page";
 
 export default function Home() {
@@ -14,7 +15,9 @@ export default function Home() {
   }, []);
   return (
     <div>
-      <Page/>
+      <DashboardLayout>
+        <Page />
+      </DashboardLayout>
     </div>
   );
 }
