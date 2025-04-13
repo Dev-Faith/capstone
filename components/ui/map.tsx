@@ -5,6 +5,8 @@ import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { RobotModel } from "../robot";
 import { useControls } from "leva";
+import AnimatedRobot from "../animatedRobot";
+
 
 function Ground() {
   return (
@@ -74,66 +76,66 @@ function CameraController({ x, y, z }: { x: number; y: number; z: number }) {
 }
 
 export default function Map({ preview }: { preview?: boolean }) {
-//   const { x, y, z } = useControls("Camera", {
-//     x: { value: 10, min: -20, max: 20, step: 0.1 },
-//     y: { value: 10, min: -20, max: 20, step: 0.1 },
-//     z: { value: 10, min: -20, max: 20, step: 0.1 },
-//   });
+  //   const { x, y, z } = useControls("Camera", {
+  //     x: { value: 10, min: -20, max: 20, step: 0.1 },
+  //     y: { value: 10, min: -20, max: 20, step: 0.1 },
+  //     z: { value: 10, min: -20, max: 20, step: 0.1 },
+  //   });
 
-//   // 🤖 Leva controls for Robot
-//   const robotControls = useControls("Robot", {
-//     positionX: {
-//       value: Math.PI,
-//       min: 0,
-//       max: Math.PI * 2,
-//       step: 0.01,
-//     },
-//     positionY: {
-//       value: Math.PI,
-//       min: 0,
-//       max: Math.PI * 2,
-//       step: 0.01,
-//     },
-//     positionZ: {
-//       value: Math.PI,
-//       min: 0,
-//       max: 20,
-//       step: 0.01,
-//     },
-//     scale: {
-//       value: { x: 0.3, y: 0.3, z: 0.3 },
-//       min: 0.1,
-//       max: 3,
-//       step: 0.01,
-//     },
-//     rotationX: {
-//       value: Math.PI,
-//       min: 0,
-//       max: Math.PI * 2,
-//       step: 0.01,
-//     },
-//     rotationY: {
-//       value: Math.PI,
-//       min: 0,
-//       max: Math.PI * 2,
-//       step: 0.01,
-//     },
-//     rotationZ: {
-//       value: Math.PI,
-//       min: 0,
-//       max: Math.PI * 2,
-//       step: 0.01,
-//     },
-//   });
+  //   // 🤖 Leva controls for Robot
+  //   const robotControls = useControls("Robot", {
+  //     positionX: {
+  //       value: Math.PI,
+  //       min: 0,
+  //       max: Math.PI * 2,
+  //       step: 0.01,
+  //     },
+  //     positionY: {
+  //       value: Math.PI,
+  //       min: 0,
+  //       max: Math.PI * 2,
+  //       step: 0.01,
+  //     },
+  //     positionZ: {
+  //       value: Math.PI,
+  //       min: 0,
+  //       max: 20,
+  //       step: 0.01,
+  //     },
+  //     scale: {
+  //       value: { x: 0.3, y: 0.3, z: 0.3 },
+  //       min: 0.1,
+  //       max: 3,
+  //       step: 0.01,
+  //     },
+  //     rotationX: {
+  //       value: Math.PI,
+  //       min: 0,
+  //       max: Math.PI * 2,
+  //       step: 0.01,
+  //     },
+  //     rotationY: {
+  //       value: Math.PI,
+  //       min: 0,
+  //       max: Math.PI * 2,
+  //       step: 0.01,
+  //     },
+  //     rotationZ: {
+  //       value: Math.PI,
+  //       min: 0,
+  //       max: Math.PI * 2,
+  //       step: 0.01,
+  //     },
+  //   });
 
-//   // 💡 Leva controls for Light
-//   const lightControls = useControls("Light", {
-//     intensity: { value: 0.7, min: 0, max: 5, step: 0.1 },
-//     color: "#fda4af",
-//     posX: { value: 10, min: -20, max: 20, step: 0.5 },
-//     posY: { value: 15, min: 0, max: 30, step: 0.5 },
-//     posZ: { value: 10, min: -20, max: 20, step: 0.5 },
-//   });
+  //   // 💡 Leva controls for Light
+  //   const lightControls = useControls("Light", {
+  //     intensity: { value: 0.7, min: 0, max: 5, step: 0.1 },
+  //     color: "#fda4af",
+  //     posX: { value: 10, min: -20, max: 20, step: 0.5 },
+  //     posY: { value: 15, min: 0, max: 30, step: 0.5 },
+  //     posZ: { value: 10, min: -20, max: 20, step: 0.5 },
+  //   });
 
   return (
     <Canvas
@@ -146,7 +148,7 @@ export default function Map({ preview }: { preview?: boolean }) {
         touchAction: "none",
       }}
     >
-      <CameraController x={7.3} y={5.7} z={ 20.0} />
+      <CameraController x={7.3} y={5.7} z={20.0} />
 
       <fog attach="fog" args={["#fff1f2", 15, 60]} />
       <ambientLight intensity={0.5} />
@@ -167,21 +169,22 @@ export default function Map({ preview }: { preview?: boolean }) {
         />
         <RobotPath />
         {/* <RobotMarker /> */}
-        <RobotModel
-          position={[7.5, 2, 9]}
-          scale={[
-            0.30,
-            0.30,
-            0.30,
-          ]}
-          rotation={[
-            0.00,
-            -0.76,
-            0.00,
-          ]}
-          castShadow
-        />
-
+        <Suspense
+          fallback={
+            <mesh>
+              <boxGeometry args={[1, 1, 1]} />
+              <meshStandardMaterial color="gray" />
+            </mesh>
+          }
+        >
+          {/* <RobotModel
+            position={[7.5, 2, 9]}
+            scale={[0.3, 0.3, 0.3]}
+            rotation={[0.0, -0.76, 0.0]}
+            castShadow
+          /> */}
+          <AnimatedRobot />
+        </Suspense>
         <OrbitControls
           minDistance={5}
           maxDistance={40}

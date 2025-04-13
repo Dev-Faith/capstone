@@ -22,5 +22,5 @@ export function RobotModel(props: any) {
 
   const { scene } = useGLTF("/models/capstone.glb"); // path is from the `public` folder
 
-  return <primitive object={scene} {...props} rotation={[0, -0.86, 0]} />;
+  return <primitive object={scene} {...props} rotation={[0, -1.48, 0]} />;
 }

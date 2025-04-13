@@ -8,13 +8,13 @@ interface TeamMember {
 }
 
 interface Team1Props {
-  heading?: string;
-  subheading?: string;
-  description?: string;
-  members?: TeamMember[];
+  heading: string;
+  subheading: string;
+  description: string;
+  members: TeamMember[];
 }
 
-const Team1 = ({
+const Page = ({
   heading = "Meet our team",
   subheading = "Group 8 Team Members",
   description = "This is the team that worked on the project. We combined efforts in different areas to achieve the best results. We are a team of engineers, designers, and developers who are passionate about technology and innovation.",
@@ -114,4 +114,4 @@ const Team1 = ({
   );
 };
 
-export default Team1;
+export default Page;
