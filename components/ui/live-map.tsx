@@ -3,6 +3,9 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Line, OrbitControls } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { RobotModel } from "../robot";
+import { useControls } from 'leva';
+import Map from "./map";
 
 function Ground() {
   return (
@@ -14,6 +17,8 @@ function Ground() {
 }
 
 function RobotPath() {
+
+
   const points = useMemo(
     () =>
       [
@@ -69,52 +74,14 @@ function RobotMarker() {
 }
 
 export default function MapPage({ preview }: { preview: boolean }) {
+
   return (
     <div
       className={`${
-        preview ? "h-[50vh]" : "h-[93vh]"
-      } w-full rounded-xl overflow-hidden border p-4 ${!preview && "m-4"}`}
+        preview ? "h-[50vh] w-full" : "h-[90vh] w-full"
+      } rounded-xl overflow-hidden border p-4 ${!preview && "m-4"}`}
     >
-      <Canvas
-        shadows
-        camera={{ position: [10, 10, 10], fov: 50 }}
-        style={{ background: "#fff1f2" }}
-      >
-        {/* 🌫️ Soft dreamy fog */}
-        <fog attach="fog" args={["#fff1f2", 15, 60]} />
-
-        {/* ✨ Soft warm lighting */}
-        <ambientLight intensity={0.5} />
-        <directionalLight
-          position={[10, 15, 10]}
-          intensity={0.7}
-          color="#fda4af"
-          castShadow
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
-        />
-
-        <Suspense fallback={null}>
-          <Ground />
-
-          {/* 💫 Rose grid with glow */}
-          <primitive
-            object={new THREE.GridHelper(100, 100, "#fca5a5", "#fcd3dc")}
-            position={[0, 0.01, 0]}
-          />
-
-          <RobotPath />
-          <RobotMarker />
-
-          <OrbitControls
-            minDistance={5}
-            maxDistance={40}
-            enablePan={true}
-            maxPolarAngle={Math.PI / 2}
-            minPolarAngle={0}
-          />
-        </Suspense>
-      </Canvas>
+     <Map/>
     </div>
   );
 }

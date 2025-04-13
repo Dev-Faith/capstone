@@ -5,7 +5,7 @@ type Props = {};
 
 const page = (props: Props) => {
   return (
-    <div>
+    <div className="lg:w-[97.7%] w-[93%]">
       <MapPage preview={false} />
     </div>
   );
