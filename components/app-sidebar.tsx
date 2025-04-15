@@ -53,12 +53,12 @@ const data = {
     },
     {
       title: "Tasks / Delivery Requests",
-      url: "#",
+      url: "/dashboard/task",
       icon: IconChartBar,
     },
     {
       title: "Robot Status",
-      url: "#",
+      url: "/dashboard/robot-status",
       icon: IconFolder,
     },
     {

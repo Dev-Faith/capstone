@@ -1,12 +1,17 @@
 "use client";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Line, OrbitControls } from "@react-three/drei";
+import {
+  Environment,
+  Line,
+  OrbitControls,
+  Html,
+  Loader,
+} from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { RobotModel } from "../robot";
 import { useControls } from "leva";
 import AnimatedRobot from "../animatedRobot";
-
 
 function Ground() {
   return (
@@ -161,7 +166,13 @@ export default function Map({ preview }: { preview?: boolean }) {
         shadow-mapSize-height={1024}
       />
 
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <Html>
+            <Loader />
+          </Html>
+        }
+      >
         <Ground />
         <primitive
           object={new THREE.GridHelper(100, 100, "#fca5a5", "#fcd3dc")}
@@ -171,10 +182,9 @@ export default function Map({ preview }: { preview?: boolean }) {
         {/* <RobotMarker /> */}
         <Suspense
           fallback={
-            <mesh>
-              <boxGeometry args={[1, 1, 1]} />
-              <meshStandardMaterial color="gray" />
-            </mesh>
+            <Html>
+              <Loader />
+            </Html>
           }
         >
           {/* <RobotModel
@@ -184,6 +194,7 @@ export default function Map({ preview }: { preview?: boolean }) {
             castShadow
           /> */}
           <AnimatedRobot />
+          {/* <Environment preset="city"/> */}
         </Suspense>
         <OrbitControls
           minDistance={5}
