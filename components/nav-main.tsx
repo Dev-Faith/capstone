@@ -16,6 +16,7 @@ import { db } from "@/lib/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useState } from "react";
 import { toast } from "sonner";
+import { CreateTaskModal } from "./ui/createTaskModal";
 
 export function NavMain({
   items,
@@ -30,6 +31,7 @@ export function NavMain({
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
+  const [toggleTaskModal, setToggleTaskModal] = useState(false);
 
   const handleCreateTask = async () => {
     setLoading(true);
@@ -54,10 +56,11 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarMenu>
+        <CreateTaskModal open={toggleTaskModal} setToggleTaskModal={setToggleTaskModal}/>
+        <SidebarMenu >
           <SidebarMenuItem className="flex items-center gap-2">
             <SidebarMenuButton
-              onClick={handleCreateTask}
+              onClick={() => setToggleTaskModal(true)}
               disabled={loading}
               tooltip="Quick Create"
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"

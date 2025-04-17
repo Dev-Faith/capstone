@@ -103,12 +103,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const schema = z.object({
   id: z.number(),
-  header: z.string(),
-  type: z.string(),
+  item: z.string(),
+  robotId: z.string(),
   status: z.string(),
-  target: z.string(),
-  limit: z.string(),
-  reviewer: z.string(),
+  path: z.array(
+    z.object({
+      x: z.number(),
+      y: z.number(),
+      z: z.number(),
+    })
+  ),
+  time: z.string(),
+  destination: z.string(),
 });
 
 // Create a separate component for the drag handle
@@ -177,7 +183,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     cell: ({ row }) => (
       <div className="w-32">
         <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.original.type}
+          {row.original.robotId}
         </Badge>
       </div>
     ),
@@ -204,7 +210,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         onSubmit={(e) => {
           e.preventDefault();
           toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
+            loading: `Saving ${row.original.robotId}`,
             success: "Done",
             error: "Error",
           });
@@ -215,7 +221,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         </Label>
         <Input
           className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.target}
+          defaultValue={row.original.path}
           id={`${row.original.id}-target`}
         />
       </form>
@@ -229,7 +235,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         onSubmit={(e) => {
           e.preventDefault();
           toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
+            loading: `Saving ${row.original.item}`,
             success: "Done",
             error: "Error",
           });
@@ -240,7 +246,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         </Label>
         <Input
           className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.limit}
+          defaultValue={row.original.time}
           id={`${row.original.id}-limit`}
         />
       </form>
@@ -250,10 +256,10 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     accessorKey: "destination",
     header: "Destination",
     cell: ({ row }) => {
-      const isAssigned = row.original.reviewer !== "Assign reviewer";
+      const isAssigned = row.original.destination !== "Assign a destination";
 
       if (isAssigned) {
-        return row.original.reviewer;
+        return row.original.destination;
       }
 
       return (
@@ -649,12 +655,12 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
         <Button variant="link" className="text-foreground w-fit px-0 text-left">
-          {item.header}
+          {item.item}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
+          <DrawerTitle>{item.item}</DrawerTitle>
           <DrawerDescription>
             Showing total visitors for the last 6 months
           </DrawerDescription>
@@ -720,12 +726,12 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
           <form className="flex flex-col gap-4">
             <div className="flex flex-col gap-3">
               <Label htmlFor="header">Task</Label>
-              <Input id="header" defaultValue={item.header} />
+              <Input id="header" defaultValue={item.item} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
                 <Label htmlFor="type">Robot Id</Label>
-                <Select defaultValue={item.type}>
+                <Select defaultValue={item.robotId}>
                   <SelectTrigger id="type" className="w-full">
                     <SelectValue placeholder="Select a type" />
                   </SelectTrigger>
@@ -766,16 +772,16 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
                 <Label htmlFor="target">Path</Label>
-                <Input id="target" defaultValue={item.target} />
+                <Input id="target" defaultValue={item.path} />
               </div>
               <div className="flex flex-col gap-3">
                 <Label htmlFor="limit">Time Created</Label>
-                <Input id="limit" defaultValue={item.limit} />
+                <Input id="limit" defaultValue={item.time} />
               </div>
             </div>
             <div className="flex flex-col gap-3">
               <Label htmlFor="reviewer">Destination</Label>
-              <Select defaultValue={item.reviewer}>
+              <Select defaultValue={item.destination}>
                 <SelectTrigger id="reviewer" className="w-full">
                   <SelectValue placeholder="Select a reviewer" />
                 </SelectTrigger>
