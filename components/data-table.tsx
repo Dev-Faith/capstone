@@ -772,7 +772,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
                 <Label htmlFor="target">Path</Label>
-                <Input id="target" defaultValue={item.path} />
+                <Input id="target" defaultValue={JSON.stringify(item.path)} />
               </div>
               <div className="flex flex-col gap-3">
                 <Label htmlFor="limit">Time Created</Label>
