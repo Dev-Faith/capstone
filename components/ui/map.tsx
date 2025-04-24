@@ -66,60 +66,59 @@ function RobotPath() {
   // // Don't render the path if points is empty
   // if (points.length === 0) return null;
 
-
   const robotRef = useRef<THREE.Group>(null);
-    const [curve, setCurve] = useState<THREE.CatmullRomCurve3 | null>(null);
-    const progress = useRef(0);
-  
-    // Constants for UI-to-3D scaling
-    const scale = 0.1;
-    const mapWidth = 100;
-    const mapHeight = 100;
-  
-    // Fetch latest delivery task path
-    useEffect(() => {
-      const q = query(
-        collection(db, "deliveryTasks"),
-        orderBy("createdAt", "desc"),
-        limit(1)
-      );
-  
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        if (!snapshot.empty) {
-          const data = snapshot.docs[0].data();
-          const path = data.path || [];
-  
-          console.log("Fetched path:", path);
-  
-          if (path.length > 1) {
-            const points = path.map((p: any) => {
-              const x = (p.x - mapWidth / 2) * scale;
-              const y = 0;
-              const z = (p.z - mapHeight / 2) * scale;
-              return new THREE.Vector3(x, y, z);
-            });
-  
-            const newCurve = new THREE.CatmullRomCurve3(points, false);
-            console.log("Generated curve points:", newCurve.getPoints(10));
-            setCurve(newCurve);
-          } else {
-            setCurve(null);
-          }
+  const [curve, setCurve] = useState<THREE.CatmullRomCurve3 | null>(null);
+  const progress = useRef(0);
+
+  // Constants for UI-to-3D scaling
+  const scale = 0.1;
+  const mapWidth = 100;
+  const mapHeight = 100;
+
+  // Fetch latest delivery task path
+  useEffect(() => {
+    const q = query(
+      collection(db, "deliveryTasks"),
+      orderBy("createdAt", "desc"),
+      limit(1)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        const data = snapshot.docs[0].data();
+        const path = data.path || [];
+
+        console.log("Fetched path:", path);
+
+        if (path.length > 1) {
+          const points = path.map((p: any) => {
+            const x = (p.x - mapWidth / 2) * scale;
+            const y = 0;
+            const z = (p.z - mapHeight / 2) * scale;
+            return new THREE.Vector3(x, y, z);
+          });
+
+          const newCurve = new THREE.CatmullRomCurve3(points, false);
+          console.log("Generated curve points:", newCurve.getPoints(10));
+          setCurve(newCurve);
         } else {
           setCurve(null);
         }
-      });
+      } else {
+        setCurve(null);
+      }
+    });
 
-      // const point = curve.getPointAt(progress.current);
-  
-      return () => unsubscribe();
-    }, []);
-  
-    // Reset animation when new curve is received
-    useEffect(() => {
-      progress.current = 0;
-    }, [curve]);
-  
+    // const point = curve.getPointAt(progress.current);
+
+    return () => unsubscribe();
+  }, []);
+
+  // Reset animation when new curve is received
+  useEffect(() => {
+    progress.current = 0;
+  }, [curve]);
+
   return (
     // <Line
     //   points={points.map((p) => [p.x, p.y, p.z])}
@@ -130,7 +129,6 @@ function RobotPath() {
     {}
   );
 }
-
 
 // === CameraController ===
 function CameraController({ x, y, z }: { x: number; y: number; z: number }) {
@@ -155,6 +153,7 @@ export default function Map({ preview }: { preview?: boolean }) {
         width: "100%",
         height: "100%",
         touchAction: "none",
+        pointerEvents: "none",
       }}
     >
       <CameraController x={7.3} y={5.7} z={20.0} />
