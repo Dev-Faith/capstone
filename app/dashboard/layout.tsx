@@ -19,7 +19,7 @@ export default function DashboardLayout({
   const { userLoggedIn } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  console.log(pathname);
+  // console.log(pathname);
   useEffect(() => {
     !userLoggedIn && router.push("/login");
   }, []);

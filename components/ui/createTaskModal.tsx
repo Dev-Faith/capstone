@@ -87,7 +87,7 @@ export function CreateTaskModal({
         item,
         destination,
         path: formattedPath,
-        status: "pending",
+        status: "In Progress",
         createdAt: serverTimestamp(),
       });
 

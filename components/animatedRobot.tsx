@@ -35,7 +35,7 @@ function AnimatedRobot() {
         const data = snapshot.docs[0].data();
         const path = data.path || [];
 
-        console.log("Fetched path:", path);
+        // console.log("Fetched path:", path);
 
         if (path.length > 1) {
           const points = path.map((p: any) => {
@@ -46,7 +46,7 @@ function AnimatedRobot() {
           });
 
           const newCurve = new THREE.CatmullRomCurve3(points, false);
-          console.log("Generated curve points:", newCurve.getPoints(10));
+          // console.log("Generated curve points:", newCurve.getPoints(10));
           setCurve(newCurve);
         } else {
           setCurve(null);
@@ -86,7 +86,7 @@ function AnimatedRobot() {
       );
       robotRef.current.quaternion.slerp(quaternion, 0.1);
 
-      console.log("Progress:", progress.current.toFixed(2), "Position:", point);
+      // console.log("Progress:", progress.current.toFixed(2), "Position:", point);
     }
   });
 

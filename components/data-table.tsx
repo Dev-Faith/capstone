@@ -103,6 +103,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import PathRenderer from "./ui/pathRenderer";
 
 export const schema = z.object({
   id: z.string(),
@@ -256,7 +257,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         >
           <Input
             className="h-8 w-32 text-right border-transparent bg-transparent shadow-none hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30"
-            defaultValue={JSON.stringify(row.original.createdAt)}
+            defaultValue={row.original.createdAt.toString()}
             id={`${row.original.id}-time`}
           />
         </form>
@@ -590,27 +591,9 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
         <div className="px-4 py-2 space-y-4">
           {!isMobile && (
             <>
-              <ChartContainer config={chartConfig}>
-                <AreaChart
-                  data={chartData}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="month"
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <ChartTooltip
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="desktop"
-                    stroke="var(--primary)"
-                    fill="var(--primary)/10"
-                  />
-                </AreaChart>
-              </ChartContainer>
+              <div>
+                <PathRenderer path={item.path} strokeWidth={1} />
+              </div>
               <Separator />
             </>
           )}
@@ -621,13 +604,16 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               <Input defaultValue={item.robotId} readOnly />
             </div>
 
-            <div className="space-y-2">
-              <Label>Status</Label>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="status">Status</Label>
               <Select defaultValue={item.status}>
+                <SelectTrigger id="status" className="w-full">
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Done">Done</SelectItem>
                   <SelectItem value="In Progress">In Progress</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
+                  <SelectItem value="Not Started">Not Started</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -642,21 +628,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
 
             <div className="space-y-2">
               <Label>Created At</Label>
-              <Input
-                defaultValue={(() => {
-                  try {
-                    const date =
-                      item.createdAt instanceof Date
-                        ? item.createdAt
-                        : item.createdAt?.toDate?.();
-
-                    return date ? formatTime(date) : "Invalid date";
-                  } catch {
-                    return "Invalid date";
-                  }
-                })()}
-                readOnly
-              />
+              <Input defaultValue={item.createdAt.toString()} readOnly />
             </div>
           </div>
 
@@ -677,16 +649,10 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
   );
 }
 
-const chartData = [
-  { month: "Jan", value: 100 },
-  { month: "Feb", value: 300 },
-  { month: "Mar", value: 600 },
-  // ...rest of chart data
-];
-
-const chartConfig = {
-  value: {
-    label: "Tasks",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig;
+function toTitleCase(str: string): string {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
