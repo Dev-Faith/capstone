@@ -131,16 +131,16 @@ function RobotPath() {
 }
 
 // === CameraController ===
-function CameraController({ x, y, z }: { x: number; y: number; z: number }) {
-  const { camera } = useThree();
+// function CameraController({ x, y, z }: { x: number; y: number; z: number }) {
+//   const { camera } = useThree();
 
-  useFrame(() => {
-    camera.position.set(x, y, z);
-    camera.lookAt(0, 0, 0);
-  });
+//   useFrame(() => {
+//     camera.position.set(x, y, z);
+//     camera.lookAt(0, 0, 0);
+//   });
 
-  return null;
-}
+//   return null;
+// }
 
 // === Main Map Scene ===
 export default function Map({ preview }: { preview?: boolean }) {
@@ -153,10 +153,10 @@ export default function Map({ preview }: { preview?: boolean }) {
         width: "100%",
         height: "100%",
         touchAction: "none",
-        pointerEvents: "none",
+        // pointerEvents: "none",
       }}
     >
-      <CameraController x={7.3} y={5.7} z={20.0} />
+      {/* <CameraController x={7.3} y={5.7} z={20.0} /> */}
       <fog attach="fog" args={["#fff1f2", 15, 60]} />
       <ambientLight intensity={0.5} />
       <directionalLight
