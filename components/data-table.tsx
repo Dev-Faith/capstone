@@ -101,7 +101,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { doc, deleteDoc } from "firebase/firestore";
+import { doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import PathRenderer from "./ui/pathRenderer";
 
@@ -295,8 +295,8 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Duplicate</DropdownMenuItem>
+          <TableCellViewer item={row.original} label="Edit" />
+          <DropdownMenuItem disabled>Duplicate</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             variant="destructive"
@@ -551,33 +551,58 @@ export function DataTable({
 }
 
 // Rest of the TableCellViewer component remains the same
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
+function TableCellViewer({
+  item,
+  label,
+}: {
+  item: z.infer<typeof schema>;
+  label?: string;
+}) {
   const isMobile = useIsMobile();
-  // Safe date handling
-  const getCreatedAtDate = () => {
-    if (item.createdAt instanceof Date) {
-      return item.createdAt;
-    }
-    if (item.createdAt?.toDate) {
-      return item.createdAt.toDate();
-    }
-    return new Date(); // Fallback to current date
-  };
 
-  const formatTime = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(date);
+  const [formData, setFormData] = React.useState<{
+    robotId: string | undefined;
+    status: string | undefined;
+    destination: string | undefined;
+  }>({
+    robotId: undefined,
+    status: undefined,
+    destination: undefined,
+  });
+
+  const updateDocument = async () => {
+    const docRef = doc(db, "deliveryTasks", item.id);
+
+    try {
+      await updateDoc(docRef, {
+        robotId: formData.robotId || item.robotId,
+        status: formData.status || item.status,
+        destination: formData.destination || item.destination,
+      });
+      console.log("Document updated successfully!");
+      toast.success("Document updated successfully!");
+    } catch (error: any) {
+      console.error("Error updating document: ", error);
+      toast.error("Error updating document: ", error);
+    }
   };
 
   return (
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
-        <Button variant="link" className="text-foreground px-0 text-left">
-          {item.item}
-        </Button>
+        {!label ? (
+          <Button variant="link" className="text-foreground px-0 text-left">
+            {item.item}
+          </Button>
+        ) : (
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault(); // prevents the menu from closing
+            }}
+          >
+            Edit
+          </DropdownMenuItem>
+        )}
       </DrawerTrigger>
 
       <DrawerContent>
@@ -601,12 +626,27 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>Robot ID</Label>
-              <Input defaultValue={item.robotId} readOnly />
+              <Input
+                // defaultValue={item.robotId}
+                onChange={(e) =>
+                  setFormData({ ...formData, robotId: e.target.value })
+                }
+                value={
+                  formData.robotId == undefined
+                    ? item.robotId
+                    : formData.robotId
+                }
+              />
             </div>
 
             <div className="flex flex-col gap-3">
               <Label htmlFor="status">Status</Label>
-              <Select defaultValue={item.status}>
+              <Select
+                defaultValue={formData.status}
+                onValueChange={(sts) =>
+                  setFormData({ ...formData, status: sts })
+                }
+              >
                 <SelectTrigger id="status" className="w-full">
                   <SelectValue placeholder="Select a status" />
                 </SelectTrigger>
@@ -634,12 +674,22 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
 
           <div className="space-y-2">
             <Label>Destination</Label>
-            <Input defaultValue={item.destination} readOnly />
+            <Input
+              // defaultValue={item.destination}
+              onChange={(e) =>
+                setFormData({ ...formData, destination: e.target.value })
+              }
+              value={
+                formData.destination == undefined
+                  ? item.destination
+                  : formData.destination
+              }
+            />
           </div>
         </div>
 
         <DrawerFooter>
-          <Button>Save Changes</Button>
+          <Button onClick={updateDocument}>Save Changes</Button>
           <DrawerClose asChild>
             <Button variant="outline">Close</Button>
           </DrawerClose>
