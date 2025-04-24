@@ -235,6 +235,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
             className="h-8 w-32 text-right border-transparent bg-transparent shadow-none hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30"
             defaultValue={JSON.stringify(row.original.path)}
             id={`${row.original.id}-path`}
+            readOnly
           />
         </form>
       </div>
@@ -259,6 +260,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
             className="h-8 w-32 text-right border-transparent bg-transparent shadow-none hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30"
             defaultValue={row.original.createdAt.toString()}
             id={`${row.original.id}-time`}
+            readOnly
           />
         </form>
       </div>
