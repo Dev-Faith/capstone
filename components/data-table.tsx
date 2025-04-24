@@ -101,6 +101,9 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { doc, deleteDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
 export const schema = z.object({
   id: z.string(),
   item: z.string(),
@@ -136,6 +139,17 @@ function DragHandle({ id }: { id: string }) {
     </Button>
   );
 }
+
+const deleteActivity = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, "deliveryTasks", id));
+    toast.success("Activity deleted successfully");
+  } catch (error: any) {
+    toast.error("Failed to delete activity", {
+      description: error.message || "An error occurred",
+    });
+  }
+};
 
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
@@ -271,7 +285,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   },
   {
     id: "actions",
-    cell: () => (
+    cell: ({ row }) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="size-8">
@@ -283,7 +297,12 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           <DropdownMenuItem>Edit</DropdownMenuItem>
           <DropdownMenuItem>Duplicate</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => deleteActivity(row.original.id)}
+          >
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),

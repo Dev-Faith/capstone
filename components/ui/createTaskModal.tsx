@@ -15,9 +15,41 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useState } from "react";
 import { toast } from "sonner";
 import { MapSelector } from "../mapSelector";
-import * as THREE from "three";
 
-type Coordinate = { x: number; y: number };
+type Coordinate = { x: number; z: number };
+
+/**
+ * Filters and smooths path by spacing out points and limiting maximum count.
+ */
+const filterAndSmoothPath = (
+  points: Coordinate[],
+  minDistance = 4,
+  maxPoints = 50
+): Coordinate[] => {
+  if (points.length === 0) return [];
+
+  const filtered: Coordinate[] = [];
+  let lastPoint = points[0];
+  filtered.push(lastPoint);
+
+  for (let i = 1; i < points.length; i++) {
+    const dx = points[i].x - lastPoint.x;
+    const dz = points[i].z - lastPoint.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+
+    if (dist >= minDistance) {
+      lastPoint = points[i];
+      filtered.push(lastPoint);
+    }
+  }
+
+  if (filtered.length > maxPoints) {
+    const step = Math.ceil(filtered.length / maxPoints);
+    return filtered.filter((_, index) => index % step === 0);
+  }
+
+  return filtered;
+};
 
 export function CreateTaskModal({
   open,
@@ -40,19 +72,21 @@ export function CreateTaskModal({
 
     setLoading(true);
 
-    // Convert {x, y} points to THREE.Vector3
-    const formattedPath = path.map(({ x, y }) => new THREE.Vector3(x, 0.01, y));
+    // Clean path while preserving both x and z coordinates
+    const cleanedPath = filterAndSmoothPath(path);
+
+    const formattedPath = cleanedPath.map(({ x, z }) => ({
+      x,
+      y: 0.01,
+      z,
+    }));
 
     try {
       await addDoc(collection(db, "deliveryTasks"), {
         robotId,
         item,
         destination,
-        path: formattedPath.map((p) => ({
-          x: p.x,
-          y: p.y,
-          z: p.z,
-        })),
+        path: formattedPath,
         status: "pending",
         createdAt: serverTimestamp(),
       });

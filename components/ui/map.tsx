@@ -7,12 +7,23 @@ import {
   Html,
   Loader,
 } from "@react-three/drei";
-import { Suspense, useMemo, useRef } from "react";
+// import { Suspense, useMemo, useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 import { RobotModel } from "../robot";
-import { useControls } from "leva";
 import AnimatedRobot from "../animatedRobot";
 
+// import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { Suspense, useEffect, useRef, useState } from "react";
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+// === Ground ===
 function Ground() {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
@@ -22,53 +33,106 @@ function Ground() {
   );
 }
 
+// === RobotPath (now dynamic) ===
 function RobotPath() {
-  const points = useMemo(
-    () =>
-      [
-        [0, 0.01, 0],
-        [1, 0.01, 1],
-        [3, 0.01, 2],
-        [4, 0.01, 5],
-        [6, 0.01, 7],
-        [7.5, 0.01, 9],
-      ].map((p) => new THREE.Vector3(...p)),
-    []
-  );
+  // const [points, setPoints] = useState<THREE.Vector3[]>([]);
 
+  // useEffect(() => {
+  //   async function fetchLatestPath() {
+  //     const q = query(
+  //       collection(db, "deliveryTasks"),
+  //       orderBy("createdAt", "desc"),
+  //       limit(1)
+  //     );
+
+  //     const snapshot = await getDocs(q);
+  //     if (!snapshot.empty) {
+  //       const data = snapshot.docs[0].data();
+  //       const path = data.path || [];
+
+  //       const vectorPoints = path.map(
+  //         (p: any) => new THREE.Vector3(p.x, p.y, p.z)
+  //       );
+
+  //       setPoints(vectorPoints);
+  //     } else {
+  //       setPoints([]); // If no document, clear the points
+  //     }
+  //   }
+
+  //   fetchLatestPath();
+  // }, []);
+
+  // // Don't render the path if points is empty
+  // if (points.length === 0) return null;
+
+
+  const robotRef = useRef<THREE.Group>(null);
+    const [curve, setCurve] = useState<THREE.CatmullRomCurve3 | null>(null);
+    const progress = useRef(0);
+  
+    // Constants for UI-to-3D scaling
+    const scale = 0.1;
+    const mapWidth = 100;
+    const mapHeight = 100;
+  
+    // Fetch latest delivery task path
+    useEffect(() => {
+      const q = query(
+        collection(db, "deliveryTasks"),
+        orderBy("createdAt", "desc"),
+        limit(1)
+      );
+  
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data();
+          const path = data.path || [];
+  
+          console.log("Fetched path:", path);
+  
+          if (path.length > 1) {
+            const points = path.map((p: any) => {
+              const x = (p.x - mapWidth / 2) * scale;
+              const y = 0;
+              const z = (p.z - mapHeight / 2) * scale;
+              return new THREE.Vector3(x, y, z);
+            });
+  
+            const newCurve = new THREE.CatmullRomCurve3(points, false);
+            console.log("Generated curve points:", newCurve.getPoints(10));
+            setCurve(newCurve);
+          } else {
+            setCurve(null);
+          }
+        } else {
+          setCurve(null);
+        }
+      });
+
+      // const point = curve.getPointAt(progress.current);
+  
+      return () => unsubscribe();
+    }, []);
+  
+    // Reset animation when new curve is received
+    useEffect(() => {
+      progress.current = 0;
+    }, [curve]);
+  
   return (
-    <Line
-      points={points.map((p) => [p.x, p.y, p.z])}
-      color="black"
-      lineWidth={2}
-      castShadow
-    />
+    // <Line
+    //   points={points.map((p) => [p.x, p.y, p.z])}
+    //   color="black"
+    //   lineWidth={2}
+    //   castShadow
+    // />
+    {}
   );
 }
 
-function RobotMarker() {
-  const ref = useRef<THREE.Mesh>(null);
 
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    if (ref.current) {
-      ref.current.position.y = 0.3 + Math.sin(t * 2) * 0.05;
-    }
-  });
-
-  return (
-    <mesh ref={ref} position={[7.5, 0.3, 9]} castShadow>
-      <sphereGeometry args={[0.35, 32, 32]} />
-      <meshStandardMaterial
-        color="#f472b6"
-        emissive="#f9a8d4"
-        emissiveIntensity={0.5}
-      />
-    </mesh>
-  );
-}
-
-// ✅ This component now safely uses useFrame
+// === CameraController ===
 function CameraController({ x, y, z }: { x: number; y: number; z: number }) {
   const { camera } = useThree();
 
@@ -80,68 +144,8 @@ function CameraController({ x, y, z }: { x: number; y: number; z: number }) {
   return null;
 }
 
+// === Main Map Scene ===
 export default function Map({ preview }: { preview?: boolean }) {
-  //   const { x, y, z } = useControls("Camera", {
-  //     x: { value: 10, min: -20, max: 20, step: 0.1 },
-  //     y: { value: 10, min: -20, max: 20, step: 0.1 },
-  //     z: { value: 10, min: -20, max: 20, step: 0.1 },
-  //   });
-
-  //   // 🤖 Leva controls for Robot
-  //   const robotControls = useControls("Robot", {
-  //     positionX: {
-  //       value: Math.PI,
-  //       min: 0,
-  //       max: Math.PI * 2,
-  //       step: 0.01,
-  //     },
-  //     positionY: {
-  //       value: Math.PI,
-  //       min: 0,
-  //       max: Math.PI * 2,
-  //       step: 0.01,
-  //     },
-  //     positionZ: {
-  //       value: Math.PI,
-  //       min: 0,
-  //       max: 20,
-  //       step: 0.01,
-  //     },
-  //     scale: {
-  //       value: { x: 0.3, y: 0.3, z: 0.3 },
-  //       min: 0.1,
-  //       max: 3,
-  //       step: 0.01,
-  //     },
-  //     rotationX: {
-  //       value: Math.PI,
-  //       min: 0,
-  //       max: Math.PI * 2,
-  //       step: 0.01,
-  //     },
-  //     rotationY: {
-  //       value: Math.PI,
-  //       min: 0,
-  //       max: Math.PI * 2,
-  //       step: 0.01,
-  //     },
-  //     rotationZ: {
-  //       value: Math.PI,
-  //       min: 0,
-  //       max: Math.PI * 2,
-  //       step: 0.01,
-  //     },
-  //   });
-
-  //   // 💡 Leva controls for Light
-  //   const lightControls = useControls("Light", {
-  //     intensity: { value: 0.7, min: 0, max: 5, step: 0.1 },
-  //     color: "#fda4af",
-  //     posX: { value: 10, min: -20, max: 20, step: 0.5 },
-  //     posY: { value: 15, min: 0, max: 30, step: 0.5 },
-  //     posZ: { value: 10, min: -20, max: 20, step: 0.5 },
-  //   });
-
   return (
     <Canvas
       shadows
@@ -154,7 +158,6 @@ export default function Map({ preview }: { preview?: boolean }) {
       }}
     >
       <CameraController x={7.3} y={5.7} z={20.0} />
-
       <fog attach="fog" args={["#fff1f2", 15, 60]} />
       <ambientLight intensity={0.5} />
       <directionalLight
@@ -178,24 +181,8 @@ export default function Map({ preview }: { preview?: boolean }) {
           object={new THREE.GridHelper(100, 100, "#fca5a5", "#fcd3dc")}
           position={[0, 0.01, 0]}
         />
-        <RobotPath />
-        {/* <RobotMarker /> */}
-        <Suspense
-          fallback={
-            <Html>
-              <Loader />
-            </Html>
-          }
-        >
-          {/* <RobotModel
-            position={[7.5, 2, 9]}
-            scale={[0.3, 0.3, 0.3]}
-            rotation={[0.0, -0.76, 0.0]}
-            castShadow
-          /> */}
-          <AnimatedRobot />
-          {/* <Environment preset="city"/> */}
-        </Suspense>
+        {/* <RobotPath /> */}
+        <AnimatedRobot />
         <OrbitControls
           minDistance={5}
           maxDistance={40}

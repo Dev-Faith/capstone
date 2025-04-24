@@ -20,6 +20,7 @@ const Task = () => {
 
   useEffect(() => {
     let unsubscribe: () => void;
+    // console.log("activities", activities);
 
     const formatCreatedAt = (createdAt: any) => {
       try {
@@ -59,6 +60,7 @@ const Task = () => {
         unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
           const updatedData = querySnapshot.docs.map((doc) => {
             const raw = doc.data();
+            // console.log("raw path", raw.path);    
 
             return {
               id: doc.id, // Using document ID as string
@@ -75,7 +77,7 @@ const Task = () => {
         });
 
         const initialSnapshot = await getDocs(collectionRef);
-        console.log("Initial fetch complete");
+        // console.log("Initial fetch complete");
       } catch (error) {
         console.error("Error setting up real-time listener:", error);
       }
