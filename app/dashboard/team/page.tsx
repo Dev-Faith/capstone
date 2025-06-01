@@ -10,19 +10,20 @@ const members = [
     id: "person-1",
     name: "Chris",
     role: "Control Systems Design and Analysis",
-    avatar: "https://shadcnblocks.com/images/block/avatar-1.webp",
+    avatar: "/profileImages/Ameh.jpeg", // Local image path
   },
   {
     id: "person-2",
     name: "Barnabas",
     role: "Software Design || documentation",
-    avatar: "https://shadcnblocks.com/images/block/avatar-2.webp",
+    avatar: "/profileImages/barnabas.jpg", // Local image path
+
   },
   {
     id: "person-3",
     name: "Faith",
     role: "⁠IoT App and Web Interface Design",
-    avatar: "https://shadcnblocks.com/images/block/avatar-3.webp",
+    avatar: "/profileImages/faith.jpeg", // Local image path
   },
   {
     id: "person-4",
@@ -31,10 +32,16 @@ const members = [
     avatar: "https://shadcnblocks.com/images/block/avatar-4.webp",
   },
   {
+    id: "person-10",
+    name: "Hassan",
+    role: "Hardware Design and Analysis",
+    avatar: "/profileImages/hassan.jpeg", // Local image path
+  },
+  {
     id: "person-5",
     name: "Alfred",
     role: "Hardware Design and Analysis",
-    avatar: "https://shadcnblocks.com/images/block/avatar-5.webp",
+    avatar: "/profileImages/alfred.jpg", // Local image path
   },
   {
     id: "person-6",
@@ -52,19 +59,7 @@ const members = [
     id: "person-8",
     name: "Marcel",
     role: "Hardware Design and Analysis",
-    avatar: "https://shadcnblocks.com/images/block/avatar-8.webp",
-  },
-  {
-    id: "person-9",
-    name: "Alibaba",
-    role: "Hardware Design and Analysis",
-    avatar: "https://shadcnblocks.com/images/block/avatar-8.webp",
-  },
-  {
-    id: "person-10",
-    name: "Hassan",
-    role: "IoT App and Web Interface Design",
-    avatar: "https://shadcnblocks.com/images/block/avatar-8.webp",
+    avatar: "/profileImages/marcel.jpeg",
   },
   {
     id: "person-11",
@@ -90,7 +85,7 @@ const Page = () => {
         {members.map((person) => (
           <div key={person.id} className="flex flex-col items-center">
             <Avatar className="mb-4 size-20 border md:mb-5 lg:size-24">
-              <AvatarImage src={person.avatar} />
+              <AvatarImage src={person.avatar} className="object-cover" />
               <AvatarFallback>{person.name}</AvatarFallback>
             </Avatar>
             <p className="text-center font-medium">{person.name}</p>
